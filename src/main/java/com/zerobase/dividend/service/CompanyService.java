@@ -60,14 +60,14 @@ public class CompanyService {
     }
 
     public List<String> getCompanyNamesByKeyword(String keyword) {
-        Pageable limit = PageRequest.of(0,10);
+        Pageable limit = PageRequest.of(0, 10);
 
         Page<CompanyEntity> companyEntities = this.companyRepository.findByNameStartingWithIgnoreCase(
             keyword, limit);
 
         return companyEntities.stream()
-                                .map(e -> e.getName())
-                                .collect(Collectors.toList());
+            .map(e -> e.getName())
+            .collect(Collectors.toList());
     }
 
     public void addAutocompleteKeyword(String keyword) {

@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DividendRepository extends JpaRepository<DividendEntity, Long> {
+
     List<DividendEntity> findAllByCompanyId(Long companyId);
 
-    boolean existsByCompanyIdAndDate(Long companyId, LocalDateTime date); // 복합 유니크 키로 인덱스를 걸어서 빨라짐..
+    boolean existsByCompanyIdAndDate(Long companyId,
+        LocalDateTime date); // 복합 유니크 키로 인덱스를 걸어서 빨라짐..
 }

@@ -33,10 +33,7 @@ public class AuthController {
         //로그인용 API
         var member = this.memberService.authenticate(request);
         var token = this.tokenProvider.generateToken(member.getUsername(), member.getRoles());
-
-        System.out.println(member.toString());
-        System.out.println(token.toString());
-        System.out.println("++++++++++++++++++++++++++++++++++++++++++");
+        log.info("user login -> "+ request.getUsername());
         return ResponseEntity.ok(token);
     }
 }

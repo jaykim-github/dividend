@@ -1,5 +1,8 @@
 package com.zerobase.dividend.service;
 
+import com.zerobase.dividend.exception.Impl.AlreadyExistTickerException;
+import com.zerobase.dividend.exception.Impl.FailScrapTickerException;
+import com.zerobase.dividend.exception.Impl.NoCompanyException;
 import com.zerobase.dividend.model.Company;
 import com.zerobase.dividend.model.ScrapedResult;
 import com.zerobase.dividend.persist.CompanyRepository;
@@ -10,6 +13,7 @@ import com.zerobase.dividend.scraper.Scraper;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.Trie;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class CompanyService {
@@ -30,7 +35,7 @@ public class CompanyService {
         boolean exists = this.companyRepository.existsByTicker(ticker);
 
         if (exists) {
-            throw new RuntimeException("already exists ticker -> " + ticker);
+            throw new AlreadyExistTickerException();
         }
         return this.storeCompanyAndDividend(ticker);
     }
@@ -43,7 +48,8 @@ public class CompanyService {
         //ticker를 기준으로 회사를 스크래핑
         Company company = this.yahooFinanceScraper.scrapCompanyByTicker(ticker);
         if (ObjectUtils.isEmpty(company)) {
-            throw new RuntimeException("failed to scrap ticker -> " + ticker);
+            log.info(ticker);
+            throw new FailScrapTickerException();
         }
 
         //회사가 존재할 경우 회사의 배당금 정보를 스크래핑
@@ -86,7 +92,7 @@ public class CompanyService {
 
     public String deleteCompany(String ticker) {
         var company = this.companyRepository.findByTicker(ticker)
-            .orElseThrow(() -> new RuntimeException("존재하지 않는 회사입니다."));
+            .orElseThrow(() -> new NoCompanyException());
 
         this.dividendRepository.deleteAllByCompanyId(company.getId());
         this.companyRepository.delete(company);
